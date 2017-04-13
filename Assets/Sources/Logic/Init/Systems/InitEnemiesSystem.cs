@@ -14,9 +14,10 @@ public class InitEnemiesSystem : IInitializeSystem {
 	public void Initialize() {
 		Vector3 newPosition = new Vector3 (Random.Range (-5, 5), 0, Random.Range (-5, 5));
 		var e = _context.CreateEntity();
+		e.isEnemyUnit = true;
 		e.AddPosition(newPosition.x, newPosition.y, newPosition.z);
 		e.AddRotation (0, 0, 0);
-		e.AddVelocity (new Vector3 (0.01f, 0, 0.01f));
+		e.AddSpeed (0.01f, 0.01f);
 		e.AddTargetPosition (0, 0, 0);
 		e.AddAsset ("MonsterGhost");
 	}

@@ -6,17 +6,26 @@ public class MoveTowardsSystem : IExecuteSystem {
 	readonly IGroup<GameEntity> _group;
 
 	public MoveTowardsSystem(Contexts contexts) {
-		_group = contexts.game.GetGroup(Matcher<GameEntity>.AllOf(GameMatcher.Position, GameMatcher.Velocity));
+		_group = contexts.game.GetGroup(Matcher<GameEntity>.AllOf(GameMatcher.Position, GameMatcher.Rotation, GameMatcher.Speed));
 	}
 
 	public void Execute () {
 		foreach (GameEntity e in _group.GetEntities()) {
-			// update velocity and rotation so that the values will move this entity towards the target
 			Vector3 curPosition = new Vector3(e.position.x, e.position.y, e.position.z);
 			Vector3 targetPosition = new Vector3(e.targetPosition.x, e.targetPosition.y, e.targetPosition.z);
-			Vector3 newVelocity = Vector3.MoveTowards(curPosition, targetPosition, 0.001f);
-			Debug.Log (newVelocity);
-			e.ReplaceVelocity (newVelocity);
+
+//			Vector3 curRot = new Vector3 (e.rotation.x, e.rotation.y, e.rotation.z);
+			Vector3 newRot = (targetPosition - curPosition).normalized;
+
+			e.ReplaceRotation (newRot.x, newRot.y, newRot.z);
+			// this is the place to manipulate speed of the unit, for faster or slower speeds depending on position
+			// how? replace speed to a value like e.speed.maxSpeed
+
+			float distanceTo = Vector3.Distance (curPosition, targetPosition);
+			if (e.speed.speed != 0 & distanceTo <= e.speed.speed) {
+				// we have arrived, stop moving
+				e.ReplaceSpeed (0, e.speed.maxSpeed);
+			}
 		}
 	}
 }
