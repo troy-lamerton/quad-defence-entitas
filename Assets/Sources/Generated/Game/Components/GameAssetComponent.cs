@@ -11,17 +11,19 @@ public partial class GameEntity {
     public AssetComponent asset { get { return (AssetComponent)GetComponent(GameComponentsLookup.Asset); } }
     public bool hasAsset { get { return HasComponent(GameComponentsLookup.Asset); } }
 
-    public void AddAsset(string newName) {
+    public void AddAsset(string newName, float newLifetime) {
         var index = GameComponentsLookup.Asset;
         var component = CreateComponent<AssetComponent>(index);
         component.name = newName;
+        component.lifetime = newLifetime;
         AddComponent(index, component);
     }
 
-    public void ReplaceAsset(string newName) {
+    public void ReplaceAsset(string newName, float newLifetime) {
         var index = GameComponentsLookup.Asset;
         var component = CreateComponent<AssetComponent>(index);
         component.name = newName;
+        component.lifetime = newLifetime;
         ReplaceComponent(index, component);
     }
 

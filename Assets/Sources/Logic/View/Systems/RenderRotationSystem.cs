@@ -8,7 +8,7 @@ public sealed class RenderRotationSystem : ReactiveSystem<GameEntity> {
 	}
 
 	protected override Collector<GameEntity> GetTrigger(IContext<GameEntity> context) {
-		return context.CreateCollector(GameMatcher.Rotation);
+		return context.CreateCollector(Matcher<GameEntity>.AllOf(GameMatcher.Rotation, GameMatcher.View));
 	}
 
 	protected override bool Filter(GameEntity entity) {
@@ -19,7 +19,11 @@ public sealed class RenderRotationSystem : ReactiveSystem<GameEntity> {
 		foreach(GameEntity e in entities) {
 			var rot = e.rotation;
 			Vector3 rotVector = new Vector3(rot.x, rot.y, rot.z);
-			e.view.gameObject.transform.forward = (rotVector);
+			if (rotVector != Vector3.zero) {
+				e.view.gameObject.transform.rotation = Quaternion.LookRotation(rotVector);
+			} else {
+				e.view.gameObject.transform.rotation = Quaternion.identity;
+			}
 		}
 	}
 }

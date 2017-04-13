@@ -17,6 +17,6 @@ public class InitPlayerSystem : IInitializeSystem {
 		e.AddPosition (0, 0, 0);
 		// e.isTargetPosition = true; see TODO in GameSystems
 		e.AddRotation (0, 0, 0);
-		e.AddAsset ("Player");
+		e.AddAsset ("Player", -1f);
 	}
 }

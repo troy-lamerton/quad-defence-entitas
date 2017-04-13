@@ -1,5 +1,6 @@
 ﻿using Entitas;
+using Entitas.CodeGenerator.Api;
 
-[Game]
+[Game, Unique]
 public sealed class PlayerComponent : IComponent {
 }

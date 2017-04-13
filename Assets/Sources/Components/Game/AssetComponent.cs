@@ -4,4 +4,5 @@
 public class AssetComponent : IComponent {
 
 	public string name;
+	public float lifetime;
 }

@@ -21,6 +21,7 @@ public sealed class AddViewSystem : ReactiveSystem<GameEntity> {
 	protected override void Execute (List<GameEntity> entities) {
 		foreach(GameEntity e in entities) {
 			var asset = Resources.Load<GameObject>(e.asset.name);
+
 			// load game object
 			GameObject gameObject = null;
 			try {
@@ -30,6 +31,9 @@ public sealed class AddViewSystem : ReactiveSystem<GameEntity> {
 			}
 
 			if(gameObject != null) {
+				if (e.asset.lifetime > 0) {
+					UnityEngine.Object.Destroy (gameObject, e.asset.lifetime / 60);
+				}
 				gameObject.transform.parent = _viewContainer;
 				e.AddView(gameObject);
 			}

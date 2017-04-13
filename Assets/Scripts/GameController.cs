@@ -8,7 +8,7 @@ public class GameController : MonoBehaviour {
 	Systems createSystems(Contexts contexts) {
 		return new Feature ("Systems")
 			.Add (new InitSystems (contexts))
-//			.Add (new InputSystem (contexts))
+			.Add (new InputSystem (contexts))
 			.Add (new GameSystems (contexts))
 			.Add (new ViewSystems (contexts));
 	}
