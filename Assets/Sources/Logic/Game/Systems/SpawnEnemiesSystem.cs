@@ -20,7 +20,7 @@ public class SpawnEnemiesSystem : IExecuteSystem {
 
 	public void CreateEnemy(GameContext game, float speedMultiplier = 1f) {
 		Vector3 newPosition = RandomPositionOnCircle ();
-		float speed = 0.001f * (float)Random.Range (4, 6) * speedMultiplier;
+		float speed = 0.0012f * (float)Random.Range (4, 6) * speedMultiplier;
 
 		GameEntity e = game.CreateEntity();
 		e.isEnemyUnit = true;
