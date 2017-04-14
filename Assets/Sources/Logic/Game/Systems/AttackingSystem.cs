@@ -5,11 +5,13 @@ public sealed class AttackingSystem : IExecuteSystem, ICleanupSystem {
 
 	readonly GameContext _context;
 	readonly IGroup<GameEntity> _enemyUnits;
-	const float ATTACK_RADIUS = 2.0f;
+	readonly IGroup<GameEntity> _otherUnits;
+	const float ATTACK_RADIUS = 2.15f;
 
 	public AttackingSystem(Contexts contexts) {
 		_context = contexts.game;
 		_enemyUnits = contexts.game.GetGroup (Matcher<GameEntity>.AllOf (GameMatcher.EnemyUnit, GameMatcher.Position).NoneOf(GameMatcher.Destroyed));
+		_otherUnits = contexts.game.GetGroup (Matcher<GameEntity>.AllOf (GameMatcher.Asset).NoneOf (GameMatcher.EnemyUnit, GameMatcher.View));
 	}
 
 	public void Execute() {
@@ -17,23 +19,27 @@ public sealed class AttackingSystem : IExecuteSystem, ICleanupSystem {
 		if (player.hasAttacking) {
 			var atk = player.attacking;
 			if (atk.state == atk.initState) {
-				int dir = atk.direction;
+				foreach (GameEntity shite in _otherUnits.GetEntities()) {
+					_context.DestroyEntity (shite);
+				}
 				// ATTACK!!!
 
-				// add the damagey segment and the particle effect
+				// add the damagey segment and any FX
 				GameEntity e = _context.CreateEntity ();
+
 				e.AddAsset ("Quarter", (float)atk.initState);
 
 				Vector3 rotNew = Vector3.zero;
 
 				bool isVertical = atk.direction % 2 == 0;
 				if (isVertical) {
-					rotNew = (dir == 0) ? Vector3.forward : Vector3.back; // 0 is fwd, 2 is back
+					rotNew = (atk.direction == 0) ? Vector3.forward : Vector3.back; // 0 is fwd, 2 is back
 				} else {
-					rotNew = (dir == 1) ? Vector3.right : Vector3.left; // 1 is right, 3 is left
+					rotNew = (atk.direction == 1) ? Vector3.right : Vector3.left; // 1 is right, 3 is left
 				}
 
 				e.AddRotation (rotNew.x, rotNew.y, rotNew.z);
+
 				player.ReplaceRotation (rotNew.x, rotNew.y, rotNew.z);
 
 				// damage enemies inside the quarter
@@ -45,13 +51,11 @@ public sealed class AttackingSystem : IExecuteSystem, ICleanupSystem {
 					float angleBetween = Vector2.Angle (enemyPosition2D.normalized, new Vector2 (rotNew.x, rotNew.z).normalized);
 					if (angleBetween <= 45f) {
 						float enemyDistance = enemyPosition2D.magnitude;
-						Debug.Log (enemyDistance);
 						if (enemyDistance <= ATTACK_RADIUS) {
 							// blast that sucker
 							enemy.isDestroyed = true;
 						}
 					}
-					// and same signs on x and z
 				}
 
 			} else if (atk.state > 0) {

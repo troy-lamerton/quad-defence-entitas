@@ -1,35 +1,44 @@
-﻿using Entitas;
+﻿using System.Collections.Generic;
+using Entitas;
 using UnityEngine;
 
-public class MoveTowardsSystem : IExecuteSystem {
+public class MoveTowardsSystem : ReactiveSystem<GameEntity> {
 
-	readonly IGroup<GameEntity> _group;
-
-	public MoveTowardsSystem(Contexts contexts) {
-		_group = contexts.game.GetGroup(Matcher<GameEntity>.AllOf(GameMatcher.Position, GameMatcher.Rotation, GameMatcher.Speed, GameMatcher.TargetPosition));
+	public MoveTowardsSystem(Contexts contexts) : base(contexts.game) {
 	}
 
-	public void Execute () {
-		foreach (GameEntity e in _group.GetEntities()) {
-			if (e.speed.speed != 0) {
+	protected override Collector<GameEntity> GetTrigger(IContext<GameEntity> context) {
+		return context.CreateCollector(Matcher<GameEntity>.AllOf(GameMatcher.TargetPosition, GameMatcher.Position), GroupEvent.Added);
+	}
 
-				Vector3 curPosition = new Vector3(e.position.x, e.position.y, e.position.z);
-				Vector3 targetPosition = new Vector3(e.targetPosition.x, e.targetPosition.y, e.targetPosition.z);
+	protected override bool Filter(GameEntity e) {
+		return e.hasTargetPosition && e.hasPosition & e.hasRotation & e.hasSpeed;
+	}
 
-				float distanceTo = Vector3.Distance (curPosition, targetPosition);
 
-				if (Mathf.Approximately(distanceTo, 0) | distanceTo <= e.speed.speed) {
-					// we have arrived, stop moving
-					e.ReplaceSpeed (0, e.speed.maxSpeed);
-					e.isDestroyed = true;
-				} else {
-					//Vector3 curRot = new Vector3 (e.rotation.x, e.rotation.y, e.rotation.z);
-					Vector3 newRot = (targetPosition - curPosition).normalized;
+	protected override void Execute (List<GameEntity> entities) {
+		foreach (GameEntity e in entities) {
+			float s = e.speed.speed;
+			float maxS = e.speed.maxSpeed;
 
-					e.ReplaceRotation (newRot.x, newRot.y, newRot.z);
+			Vector3 curPosition = new Vector3(e.position.x, e.position.y, e.position.z);
+			Vector3 targetPosition = new Vector3(e.targetPosition.x, e.targetPosition.y, e.targetPosition.z);
 
+			float distanceTo = Vector3.Distance (curPosition, targetPosition);
+
+			if (Mathf.Approximately(distanceTo, 0.2f) | distanceTo <= s) {
+				// we have arrived, stop moving
+				e.isDestroyed = true;
+			} else {
+				if (s != maxS) {
 					// this is the place to manipulate speed of the unit, for faster or slower speeds depending on position
-					e.ReplaceSpeed (e.speed.maxSpeed, e.speed.maxSpeed);
+					e.ReplaceSpeed (maxS, maxS);
+				}
+
+				Vector3 newRot = (targetPosition - curPosition).normalized;
+			
+				if (newRot.y != e.rotation.y | newRot.z != e.rotation.z) {
+					e.ReplaceRotation (newRot.x, newRot.y, newRot.z);
 				}
 			}
 		}

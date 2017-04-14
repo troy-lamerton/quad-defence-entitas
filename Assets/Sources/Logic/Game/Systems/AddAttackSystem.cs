@@ -4,6 +4,8 @@ using Entitas;
 
 public sealed class AddAttackSystem : ReactiveSystem<InputEntity> {
 
+	const int ATTACK_SPEED = (int)(0.25 * 60); // 60 FPS
+
 	readonly GameContext _context;
 
 	public AddAttackSystem(Contexts contexts) : base(contexts.input) {
@@ -40,7 +42,7 @@ public sealed class AddAttackSystem : ReactiveSystem<InputEntity> {
 					attackDirection = (x > 0) ? 1 : 3; // 1 is right, 3 is left
 				}
 
-				playerEntity.AddAttacking (attackDirection, 30, 30);
+				playerEntity.AddAttacking (attackDirection, ATTACK_SPEED, ATTACK_SPEED);
 			}
 		}
 	}
